@@ -1,0 +1,118 @@
+FROM ghcr.io/oracle/oraclelinux:10-slim
+
+# Optional proxy support (passed via --build-arg)
+ARG http_proxy
+ARG https_proxy
+ARG no_proxy
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+ENV http_proxy=${http_proxy} \
+    https_proxy=${https_proxy} \
+    no_proxy=${no_proxy} \
+    HTTP_PROXY=${HTTP_PROXY} \
+    HTTPS_PROXY=${HTTPS_PROXY} \
+    NO_PROXY=${NO_PROXY}
+
+# Feature flags
+ARG INSTALL_PYTHON=1
+ARG WITH_PIP_UPGRADE=1
+ARG INSTALL_PIP=1
+ARG INSTALL_NODEJS=1
+ARG INSTALL_UV=1
+
+# Install base tools and optionally Python/pip
+RUN set -eux; \
+    microdnf -y update; \
+    microdnf install -y \
+        bash \
+        curl \
+        xz \
+        ca-certificates \
+        tar \
+        ncurses \
+        vim-minimal \
+        telnet \
+        iputils \
+        net-tools \
+        bind-utils \
+        traceroute \
+        tcpdump; \
+    if [ "${INSTALL_PYTHON}" = "1" ]; then microdnf install -y python3; fi; \
+    if [ "${INSTALL_PIP}" = "1" ]; then microdnf install -y python3-pip; fi; \
+    if [ "${INSTALL_PYTHON}" = "1" ]; then ln -sf /usr/bin/python3 /usr/bin/python; fi; \
+    microdnf clean all
+
+# Upgrade pip and install pipx (separate from base install)
+RUN set -eux; \
+    if [ "${INSTALL_PIP}" = "1" ] && [ "${WITH_PIP_UPGRADE}" = "1" ]; then \
+      python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel pipx || true; \
+      pip --version || true; \
+    else \
+      echo "Skipping pip upgrade (INSTALL_PIP!=1 or WITH_PIP_UPGRADE!=1)"; \
+    fi
+
+# Install uv (Astral) via network when enabled
+RUN set -eux; \
+    if [ "${INSTALL_UV}" = "1" ]; then \
+      curl -fsSL https://astral.sh/uv/install.sh | sh -s --; \
+      ln -sf /root/.local/bin/uv /usr/local/bin/uv || true; \
+      uv --version || true; \
+    else \
+      echo "Skipping uv install (INSTALL_UV!=1)"; \
+    fi
+
+# Install pipx (idempotent)
+RUN set -eux; \
+    if [ "${INSTALL_PIP}" = "1" ]; then \
+      python3 -m pip install --no-cache-dir pipx || true; \
+      pip --version; \
+    else \
+      echo "Skipping pip install (INSTALL_PIP!=1)"; \
+    fi
+
+# Install Node.js (LTS) from official tarball (optional)
+# ENV NODE_VERSION=24.12.0
+# RUN set -eux; \
+#     if [ "${INSTALL_NODEJS}" = "1" ]; then \
+#       arch="$(uname -m)"; \
+#       case "$arch" in \
+#         x86_64) node_arch="x64" ;; \
+#         aarch64) node_arch="arm64" ;; \
+#         *) echo "Unsupported architecture: $arch" >&2; exit 1 ;; \
+#       esac; \
+#       curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${node_arch}.tar.xz"; \
+#       tar -C /usr/local --strip-components=1 -Jxvf "node-v${NODE_VERSION}-linux-${node_arch}.tar.xz"; \
+#       rm "node-v${NODE_VERSION}-linux-${node_arch}.tar.xz"; \
+#       node --version; npm --version; \
+#     else \
+#       echo "Skipping Node.js install (INSTALL_NODEJS!=1)"; \
+#     fi; \
+#     if command -v python >/dev/null 2>&1; then python --version; fi
+
+# Default working directory
+WORKDIR /app
+
+# Create storage and declare as volume (aligns with code expecting /app/storage)
+RUN mkdir -p /app/storage
+VOLUME ["/app/storage"]
+
+# Copy application into image
+COPY . .
+
+# Install project in editable mode so console script is available
+RUN set -eux; \
+    if [ "${INSTALL_PIP}" = "1" ]; then \
+      python3 -m pip install --no-cache-dir -e .; \
+    else \
+      echo "Skipping project install (INSTALL_PIP!=1)"; \
+    fi
+
+# Expose API and MCP SSE ports
+EXPOSE 9090 8765
+
+# Favor unbuffered logs for Docker
+ENV PYTHONUNBUFFERED=1
+
+# Start the app via console script (no uv wrapper to avoid runtime venv/version drift)
+CMD ["restapi_mcp_server"]

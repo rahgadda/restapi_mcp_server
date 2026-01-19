@@ -1,0 +1,141 @@
+# --------------------------------------------------------
+# Docker build context hygiene for Python/uv project
+# Keep only what is needed to build & run the image
+# --------------------------------------------------------
+
+# Python cache/compiled
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*$py.class
+*.so
+
+# Python build artifacts
+build/
+dist/
+.eggs/
+*.egg-info/
+pip-wheel-metadata/
+__pypackages__/
+wheelhouse/
+
+# Python tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.nox/
+.tox/
+.hypothesis/
+.cache/
+.coverage
+coverage.*
+coverage.xml
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Env/direnv
+.env
+.env.*
+.env.local
+.envrc
+.direnv/
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+**/.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# VCS/CI
+.git/
+.gitignore
+.gitattributes
+.gitmodules
+.git-credentials
+.github/
+
+# Docker related (not needed inside image)
+Dockerfile
+.dockerignore
+docker-compose.yml
+compose.yaml
+compose.yml
+**/docker-compose.*
+Docker/
+!Docker/Dockerfile
+
+# Logs and temp
+*.log
+**/*.log
+logs/
+**/logs/
+.tmp/
+**/.tmp/
+/tmp/
+
+# Documentation & notebooks (keep if you need them in the image)
+*.md
+/docs/
+**/.ipynb_checkpoints/
+*.ipynb
+
+# REST client files
+*.rest
+*.http
+
+# Security/keys (never copy secrets into images)
+*.pem
+*.key
+*.crt
+*.p12
+*.der
+*.asc
+
+# Project specific: local runtime data
+storage/
+
+# Tests (exclude test sources/data from context)
+tests/
+**/tests/
+
+# Repo-specific extras
+SKILL.md.bak
+install.sh
+Prompt.txt
+dump.txt
+restapi_mcp_server.egg-info
+
+# restapi_mcp_server subtree hygiene
+restapi_mcp_server/__pycache__/
+restapi_mcp_server/**/*.py[cod]
+restapi_mcp_server/*.py[cod]
+restapi_mcp_server/.pytest_cache/
+restapi_mcp_server/.mypy_cache/
+restapi_mcp_server/.ruff_cache/
+restapi_mcp_server/.coverage
+restapi_mcp_server/coverage.xml
+restapi_mcp_server/.venv/
+restapi_mcp_server/venv/
+restapi_mcp_server/env/
+restapi_mcp_server/ENV/
+restapi_mcp_server/.env
+restapi_mcp_server/.env.*
+restapi_mcp_server/node_modules/
+restapi_mcp_server/*.log
+restapi_mcp_server/.DS_Store
+restapi_mcp_server/.git
+restapi_mcp_server/.gitignore
+restapi_mcp_server/.python-version
+restapi_mcp_server/tests/

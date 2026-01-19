@@ -1,0 +1,27 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local install.sh
+install.sh
+
+# Docker artifacts (ignore Docker/ but keep the main Dockerfile tracked)
+Docker/
+!Docker/Dockerfile
+
+# Repo-specific extras to ignore
+SKILL.md
+SKILL.md.bak
+Prompt.txt
+dump.txt
+restapi_mcp_server.egg-info
+test.rest
+logs/
+restapi_mcp_server.egg-info/
