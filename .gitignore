@@ -10,7 +10,7 @@ wheels/
 .venv
 
 # Local install.sh
-install.sh
+install_local.sh
 
 # Docker artifacts (ignore Docker/ but keep the main Dockerfile tracked)
 Docker/

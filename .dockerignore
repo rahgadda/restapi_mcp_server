@@ -113,6 +113,7 @@ tests/
 # Repo-specific extras
 SKILL.md.bak
 install.sh
+install_local.sh
 Prompt.txt
 dump.txt
 restapi_mcp_server.egg-info
@@ -139,3 +140,5 @@ restapi_mcp_server/.git
 restapi_mcp_server/.gitignore
 restapi_mcp_server/.python-version
 restapi_mcp_server/tests/
+
+storage/

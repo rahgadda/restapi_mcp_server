@@ -8,7 +8,7 @@
 ## Installation
 - Install package
   ```bash
-  pip install restapi_mcp_server
+  source start.sh
   ```
 
 ## Claud Desktop
@@ -17,11 +17,32 @@
   {
     "mcpServers": {
       "restapi_mcp_server":{
-        "command": "uv",
-        "args": ["run","restapi_mcp_server"]
+        "command": "npx",
+        "args": ["mcp-remote","<<IP:765/sse>>","--allow-http"]
       }
     }
   }
+  ```
+- Cline
+  ```json
+  "DEMO": {
+      "autoApprove": [
+        "createSession",
+        "createEnviromentVariables",
+        "listAllEnviromentVariables",
+        "listSpecificEnvironmentVariable",
+        "createRestAPICall"
+      ],
+      "disabled": false,
+      "timeout": 60,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://<<IP>>:8765/sse",
+        "--allow-http"
+      ]
+    }
   ```
 
 ### Configuration
