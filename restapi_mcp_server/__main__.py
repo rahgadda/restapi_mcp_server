@@ -144,6 +144,21 @@ def createMCPServerWithTools():
             return r.json()
 
     @mcp.tool()
+    def deleteAllByEnvironment(environment: str) -> Dict[str, Any]:
+        """Delete all variables for the given environment via REST API.
+
+        Endpoint: DELETE /api/v001/variables/deleteAllByEnvironment
+        Returns: { environment, deletedCount }
+        """
+        with httpx.Client(timeout=30.0) as client:
+            r = client.delete(
+                f"{API_BASE}/api/v001/variables/deleteAllByEnvironment",
+                params={"environment": environment},
+            )
+            r.raise_for_status()
+            return r.json()
+
+    @mcp.tool()
     def health() -> Dict[str, Any]:
         """Check API health.
         
