@@ -76,3 +76,37 @@ def eval(expression: str, data: List[Dict[str, Any]]) -> str:
             else:
                 normalized.append(item)
     return interpolate(expression, normalized)
+
+
+def deleteAllVariablesByEnvironment(environment: str) -> int:
+    """Delete all variables for the given environment.
+
+    Reads the environment CSV and removes all rows where `environment` matches
+    the provided environment value. Returns the number of deleted rows.
+    """
+    try:
+        df = read_csv_df(COMMON.FileType.ENVIRONMENT)
+    except Exception as exc:
+        logger.error("Failed to read environment CSV: %s", exc)
+        raise
+
+    if df.empty:
+        return 0
+
+    if "environment" not in df.columns:
+        logger.error("'environment' column not found in ENVIRONMENT CSV")
+        raise KeyError("'environment' column not found in ENVIRONMENT CSV")
+
+    mask = df["environment"] == environment
+    deleted_count = int(mask.sum())
+    if deleted_count == 0:
+        return 0
+
+    new_df = df[~mask]
+    try:
+        write_csv_df(new_df, COMMON.FileType.ENVIRONMENT)
+    except Exception as exc:
+        logger.error("Failed to write environment CSV after delete: %s", exc)
+        raise
+
+    return deleted_count

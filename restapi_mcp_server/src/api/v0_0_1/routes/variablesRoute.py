@@ -17,8 +17,8 @@ Endpoints:
     Upsert (insert or update) a variable value for an environment.
 """
 from fastapi import APIRouter, HTTPException
-from ....models.variablesSchema import EvalIn, EvalOut, GetAllEnvOut, EnvVarItem
-from ....services.variablesInterpolation import eval, listAllVariableByEnvironment, listSpecificVariableByEnvironment, upsertEnvironmentVariable
+from ....models.variablesSchema import EvalIn, EvalOut, GetAllEnvOut, EnvVarItem, DeleteVarsOut
+from ....services.variablesInterpolation import eval, listAllVariableByEnvironment, listSpecificVariableByEnvironment, upsertEnvironmentVariable, deleteAllVariablesByEnvironment
 
 # Router for variable-related operations under the /variable prefix
 router = APIRouter(prefix="/variables", tags=["Variables"])
@@ -73,5 +73,15 @@ def upsert_environment_variable(payload: EnvVarItem):
             value=payload.value,
         )
         return EnvVarItem(**result)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.delete("/deleteAllByEnvironment", response_model=DeleteVarsOut)
+def delete_all_by_environment(environment: str) -> DeleteVarsOut:
+    """Delete all variables for the given environment and return deleted count."""
+    try:
+        count = deleteAllVariablesByEnvironment(environment)
+        return DeleteVarsOut(environment=environment, deletedCount=count)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

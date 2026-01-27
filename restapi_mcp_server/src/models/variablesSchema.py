@@ -58,3 +58,8 @@ class GetAllEnvOut(RootModel[List[EnvVarItem]]):
         ]
     })
     root: List[EnvVarItem]
+
+class DeleteVarsOut(BaseModel):
+    """Response for delete-all-by-environment action."""
+    environment: str = Field(..., description="Environment name")
+    deletedCount: int = Field(..., description="Number of variables deleted")
