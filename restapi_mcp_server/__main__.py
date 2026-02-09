@@ -65,7 +65,10 @@ def createMCPServerWithTools():
 
     mcp_host: str = COMMON.HOST
     mcp_port: int = COMMON.MCP_API_PORT
-    API_BASE: str = f"http://127.0.0.1:{COMMON.API_PORT}"
+    # Allow overriding the orchestrator base URL (default stays local for dev)
+    # Set env var RESTAPI_ORCHESTRATOR_BASE (or ORCHESTRATOR_BASE) to target a remote host
+    API_BASE: str = os.getenv("RESTAPI_ORCHESTRATOR_BASE") or f"http://127.0.0.1:{COMMON.API_PORT}"
+    logger.info(f"[MCP] Orchestrator base: {API_BASE}")
     mcp = FastMCP("restapi_orchestrator_tools", host=mcp_host, port=mcp_port)
 
     @mcp.tool()

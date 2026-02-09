@@ -20,5 +20,6 @@ DEFAULT_TEXT_ENCODING = "utf-8"
 # Constant for API Server
 HOST: str="0.0.0.0"
 API_PORT: int=9090
+RESTAPI_ORCHESTRATOR_BASE: str = os.getenv("RESTAPI_ORCHESTRATOR_BASE") or f"http://127.0.0.1:{API_PORT}"
 MCP_API_PORT: int=8765
 log_level: str= "debug" if DEBUG else "info"

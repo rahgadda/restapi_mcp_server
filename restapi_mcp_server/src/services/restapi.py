@@ -193,7 +193,32 @@ def restapiCall(request: RestAPIIn):
     logger.debug(f"post_script: {request.post_script}")
 
     # Loading environment variables
-    environment_details = listAllVariableByEnvironment(request.environment)
+    # NOTE: We resolve interpolations for `session` and `environment` as well.
+    # For `environment`, we must first load its variables using the raw value,
+    # then re-resolve against those variables (so env name can reference its own vars).
+    environment_raw = request.environment
+    environment_details = listAllVariableByEnvironment(environment_raw)
+
+    # Resolve session/environment using the loaded environment variables
+    try:
+        # session
+        session_resolved = resolve_interpolations(request.session, environment_details)
+        if session_resolved is not None and not isinstance(session_resolved, str):
+            session_resolved = str(session_resolved)
+        if session_resolved is not None:
+            request.session = session_resolved
+        logger.debug(f"resolved session: {request.session}")
+
+        # environment
+        env_resolved = resolve_interpolations(request.environment, environment_details)
+        if env_resolved is not None and not isinstance(env_resolved, str):
+            env_resolved = str(env_resolved)
+        if env_resolved is not None:
+            request.environment = env_resolved
+        logger.debug(f"resolved environment: {request.environment}")
+    except Exception as e:
+        logger.error("Failed to interpolate session/environment: %s", e)
+        raise
 
     # Interpolate URL, headers, and body using environment variables (safe; no Python eval)
     try:
