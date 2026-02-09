@@ -1,15 +1,1 @@
 environment,variable,value
-OBRL-14.8.2-QA,PLATO-DISCOVERY-SERVICE,http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8004/plato-discovery-service/
-OBRL-14.8.2-QA,CMC-BRANCH-SERVICES,http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8018/cmc-branch-services
-OBRL-14.8.2-QA,CMC-RESOURCE-SEGMENT-ORCHESTRATOR-SERVICE,http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8016/cmc-resource-segment-orchestrator-service
-OBRL-14.8.2-QA,API-GATEWAY,http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8080/api-gateway
-OBRL-14.8.2-QA,SMS-CORE-SERVICES,http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8026/sms-core-service
-OBRL-14.8.2-QA,SLPR-BATCHCATEGORY-SERVICES,http://ofss-mum-5364.snbomprshared2.gbucdsint02bom.oraclevcn.com:7446/slpr-batchcategory-services
-OBRL-14.8.2-QA,DEFAULT-BRANCH-CODE,006
-OBRL-14.8.2-QA,MAKER-ID,RAHGADDAMAK
-OBRL-14.8.2-QA,CHECKER-ID,RAHGADDACHK
-OBRL-14.8.2-QA,TEMP-MAKER-ID,PAVDASMAK
-OBRL-14.8.2-QA,TEMP-CHECKER-ID,PAVDASCHK
-OBRL-14.8.2-QA,TEMP-STORAGE-DIR,/Users/rahgadda/rahul/DEV/codex/restapi_mcp_server/storage
-OBRL-14.8.2-QA,BRANCH-CODE,A08
-OBRL-14.8.2-QA,BRANCH-NAME,AUTOMATION BRANCH
