@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta cDEFAULTset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Environment Variables – Edit & Submit</title>
+  <style>
+    :root { --bg:#f5f7fb; --panel:#ffffff; --muted:#5b6780; --text:#0b1020; --ok:#1a7f37; --err:#b42318; --border:#e2e7f0; --thead:#f0f4fb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: var(--text); background: var(--bg); }
+    header { padding: 16px 20px; border-bottom: 1px solid var(--border); background: #ffffffcc; backdrop-filter: blur(6px); position: sticky; top: 0; z-index: 2; }
+    h1 { margin: 0; font-size: 18px; }
+    main { padding: 20px; display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; max-width: 1100px; margin: 0 auto; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 20px #00000010; }
+    .section { padding: 16px; }
+    .section h2 { margin: 0 0 12px; font-size: 15px; color: var(--muted); font-weight: 600; }
+    .row { display: grid; grid-template-columns: 160px 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
+    label { color: var(--muted); }
+    input[type="text"] { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); outline: none; background: #fff; color: var(--text); }
+    textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); outline: none; background: #fff; color: var(--text); min-height: 64px; resize: vertical; }
+    button { appearance: none; border: 1px solid var(--border); background: linear-gradient(180deg, #ffffff, #f6f8fc); color: #0b1020; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    button:disabled { opacity: 0.6; cursor: progress; }
+    .status { margin-top: 10px; font-size: 12px; }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--err); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    details { margin-top: 12px; }
+    .table-wrap { overflow: auto; max-height: 60vh; border-top: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { position: sticky; top: 0; background: var(--thead); z-index: 1; }
+    .hint { color: var(--muted); font-size: 12px; }
+    input.readonly { background: #f6f8fc; color: #445; }
+    input.readonly:focus { outline: none; box-shadow: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Environment Variables – Edit & Submit</h1>
+  </header>
+  <main>
+    <section class="panel section">
+      <h2>Connection</h2>
+      <div class="row">
+        <label for="baseUrl">Base URL</label>
+        <input id="baseUrl" type="text" placeholder="http://host:port" />
+      </div>
+      <div class="row">
+        <label for="environment">Environment (common)</label>
+        <input id="environment" type="text" placeholder="e.g., OBRL-14.8.2-DEFAULT" />
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px;">
+        <button id="btnConnect">Connect & Fetch</button>
+        <button id="btnLoadDefaults">Load Defaults</button>
+      </div>
+      <div id="connStatus" class="status"></div>
+    </section>
+
+    <section class="panel section">
+      <h2>Variables (editable)</h2>
+      <div class="hint">Variable names are fixed; edit only values below. JSON values are supported; plain text is sent as-is.</div>
+      <div class="table-wrap">
+        <table aria-label="Variables table">
+          <thead>
+            <tr>
+              <th style="width: 320px">Variable</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="varsBody"></tbody>
+        </table>
+      </div>
+      <br />
+      <button id="btnSubmit">Submit</button>
+      <div id="submitStatus" class="status"></div>
+      <details>
+        <summary class="mono">Payload preview</summary>
+        <pre id="rawPreview" class="mono"></pre>
+      </details>
+      <details>
+        <summary class="mono">Raw response</summary>
+        <pre id="rawOut" class="mono"></pre>
+      </details>
+    </section>
+  </main>
+
+  <script>
+  (function() {
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      baseUrl: $('baseUrl'), env: $('environment'),
+      body: $('varsBody'),
+      btnConnect: $('btnConnect'), btnLoadDefaults: $('btnLoadDefaults'), connStatus: $('connStatus'),
+      btnSubmit: $('btnSubmit'), submitStatus: $('submitStatus'),
+      rawPreview: $('rawPreview'), rawOut: $('rawOut')
+    };
+
+    // 21 provided items
+    const DEFAULTS = { "items": [
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "PLATO-DISCOVERY-SERVICE", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8004/plato-discovery-service/" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CMC-BRANCH-SERVICES", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8018/cmc-branch-services" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CMC-RESOURCE-SEGMENT-ORCHESTRATOR-SERVICE", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8016/cmc-resource-segment-orchestrator-service" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "API-GATEWAY", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8080/api-gateway" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "SMS-CORE-SERVICES", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8026/sms-core-service" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "SLPR-BATCHCATEGORY-SERVICES", "value": "http://ofss-mum-5364.snbomprsDEFAULTed2.gbucdsint02bom.oraclevcn.com:7446/slpr-batchcategory-services" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBRL-LN-MAINTENANCE-SERVICES","value":"http://ofss-mum-5364.snbomprsDEFAULTed2.gbucdsint02bom.oraclevcn.com:7449/obrl-ln-maintenance-services"},
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBPY-PARTY-SERVICES","value":"http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8028/obpy-party-services"},
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBRL-LN-ACCOUNT-SERVICES","value":"http://ofss-mum-5364.snbomprsDEFAULTed2.gbucdsint02bom.oraclevcn.com:7443/obrl-ln-account-services"},
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "DEFAULT-BRANCH-CODE", "value": "006" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "MAKER-ID", "value": "HMACHAMAK" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CHECKER-ID", "value": "HMACHACHK" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-MAKER-ID", "value": "PAVDASMAK" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-CHECKER-ID", "value": "PAVDASCHK" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-STORAGE-DIR", "value": "/Users/DEFAULTish/.codex/skills/obrl/output" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "BRANCH-CODE", "value": "H02" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "BRANCH-NAME", "value": "AUTOMATION BRANCH" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-FIRST-NAME", "value": "JOHN" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-LAST-NAME", "value": "DOE" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-MIDDLE-NAME", "value": "J" },
+      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "AOB-BILLING-LEDGER", "value": "20000200100080000000" }
+    ]};
+
+    const LS_KEY = 'envmgr.min.v3';
+
+    function loadConfig() {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      els.baseUrl.value = saved.baseUrl || 'http://100.76.169.105/:9090';
+      els.env.value = saved.env || 'OBRL-14.8.2-DEFAULT';
+      // Do NOT auto-load DEFAULTS into the table on page load.
+      // The table should start empty until the user clicks Connect & Fetch
+      // or clicks Load Defaults.
+      renderRows([]);
+      updatePreview();
+    }
+    function saveConfig() {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        baseUrl: els.baseUrl.value.trim(), env: els.env.value.trim(),
+      }));
+    }
+
+    function rowTemplate(item, idx) {
+      const tr = document.createElement('tr'); tr.dataset.index = String(idx);
+      const tdK = document.createElement('td'); const tdV = document.createElement('td');
+      const inputK = document.createElement('input'); inputK.type = 'text'; inputK.value = item.variable; inputK.placeholder = 'VARIABLE_NAME'; inputK.className = 'mono readonly'; inputK.readOnly = true; inputK.setAttribute('aria-readonly','true');
+      const taV = document.createElement('textarea'); taV.value = typeof item.value === 'string' ? item.value : JSON.stringify(item.value, null, 2);
+      taV.addEventListener('input', updatePreview);
+      tdK.appendChild(inputK); tdV.appendChild(taV); tr.appendChild(tdK); tr.appendChild(tdV);
+      return tr;
+    }
+
+    function renderRows(items) {
+      els.body.innerHTML = '';
+      items.forEach((it, i) => els.body.appendChild(rowTemplate(it, i)));
+    }
+
+    function collectItems() {
+      const environment = (els.env.value || '').trim();
+      const out = [];
+      const rows = Array.from(els.body.querySelectorAll('tr'));
+      rows.forEach(r => {
+        const variable = (r.querySelector('input')?.value || '').trim();
+        const rawVal = r.querySelector('textarea')?.value ?? '';
+        if (!variable) return; // skip empty rows
+        let value; try { value = JSON.parse(rawVal); } catch { value = rawVal; }
+        out.push({ environment, variable, value });
+      });
+      return out;
+    }
+
+    function updatePreview() {
+      const payload = { items: collectItems() };
+      els.rawPreview.textContent = JSON.stringify(payload, null, 2);
+    }
+
+    function getHeaders() {
+      return { 'Content-Type': 'application/json' };
+    }
+    function getBase() { return els.baseUrl.value.replace(/\/$/, ''); }
+
+    function setStatus(el, msg, kind) {
+      el.textContent = msg;
+      el.className = 'status' + (kind ? ` ${kind}` : '');
+    }
+
+    function getEnvironmentRequired() {
+      const environment = (els.env.value || '').trim();
+      if (!environment) throw new Error('Environment is required (top field).');
+      return environment;
+    }
+
+    async function fetchVariables() {
+      const environment = getEnvironmentRequired();
+      const res = await fetch(`${getBase()}/api/v001/variables/listAllEnvironmentVariables?environment=${encodeURIComponent(environment)}`);
+      const text = await res.text();
+      let data; try { data = JSON.parse(text); } catch { data = text; }
+      if (!res.ok) {
+        const msg = typeof data === 'string' ? data : JSON.stringify(data);
+        throw new Error(`Fetch failed (${res.status}): ${msg}`);
+      }
+      if (!Array.isArray(data)) throw new Error('Unexpected response: expected array of variables.');
+      return data;
+    }
+
+    async function connectAndFetch() {
+      els.btnConnect.disabled = true;
+      els.btnLoadDefaults.disabled = true;
+      setStatus(els.connStatus, 'Connecting…', '');
+      try {
+        saveConfig();
+        const vars = await fetchVariables();
+        if (vars.length === 0) {
+          // If no variables are present on server, show empty Variables.
+          renderRows([]);
+          setStatus(els.connStatus, 'Connected, but no remote variables found. Variables table is empty.', 'ok');
+        } else {
+          vars.sort((a, b) => String(a.variable).localeCompare(String(b.variable)));
+          renderRows(vars);
+          setStatus(els.connStatus, `Connected. Loaded ${vars.length} variables from server.`, 'ok');
+        }
+        updatePreview();
+      } catch (e) {
+        setStatus(els.connStatus, `Error: ${e.message}`, 'err');
+      } finally {
+        els.btnConnect.disabled = false;
+        els.btnLoadDefaults.disabled = false;
+      }
+    }
+
+    function loadDefaultsToVariables() {
+      // Load DEFAULTS into the Variables table (client-side only).
+      // This does NOT write anything to the server.
+      const environment = (els.env.value || '').trim();
+      saveConfig();
+      const items = DEFAULTS.items.map(it => ({ ...it, environment: environment || it.environment }));
+      renderRows(items);
+      updatePreview();
+      setStatus(els.connStatus, `Loaded ${items.length} default variables into the table.`, 'ok');
+    }
+
+    async function submitUpsertAll() {
+      const environment = (els.env.value || '').trim();
+      if (!environment) { alert('Environment is required (top field).'); return; }
+      els.btnSubmit.disabled = true; els.submitStatus.textContent = 'Submitting…'; els.submitStatus.className = 'status';
+      try {
+        const items = collectItems();
+        const results = [];
+        for (const it of items) {
+          const res = await fetch(`${getBase()}/api/v001/variables/upsertEnvironmentVariable`, {
+            method: 'PUT', headers: getHeaders(), body: JSON.stringify(it)
+          });
+          const text = await res.text(); let data; try { data = JSON.parse(text); } catch { data = text; }
+          results.push({ variable: it.variable, ok: res.ok, status: res.status, data });
+        }
+        const okCount = results.filter(r => r.ok).length;
+        els.submitStatus.textContent = `Upserted ${okCount}/${results.length} variables.`;
+        els.submitStatus.classList.add(okCount === results.length ? 'ok' : 'err');
+        els.rawOut.textContent = JSON.stringify(results, null, 2);
+      } catch (e) {
+        els.submitStatus.textContent = `Error: ${e.message}`;
+        els.submitStatus.classList.add('err');
+      } finally {
+        els.btnSubmit.disabled = false;
+      }
+    }
+
+    // Wire
+    ['change','input'].forEach(evt => {
+      els.baseUrl.addEventListener(evt, saveConfig);
+      els.env.addEventListener(evt, () => { saveConfig(); updatePreview(); });
+    });
+    els.btnSubmit.addEventListener('click', submitUpsertAll);
+    els.btnConnect.addEventListener('click', connectAndFetch);
+    els.btnLoadDefaults.addEventListener('click', loadDefaultsToVariables);
+
+    // Init
+    loadConfig();
+  })();
+  </script>
+</body>
+</html>

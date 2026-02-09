@@ -120,6 +120,7 @@ DOCKER_RUN_BASE=(
   --name "${DOCKER_NAME}"
   -p 9090:9090
   -p 8765:8765
+  -p 5500:5500
   -v "${HOST_STORAGE_DIR}:/app/storage"
   -v "${LOG_DIR}:/app/logs"
   "${DOCKER_ENV[@]}"
@@ -129,7 +130,7 @@ if [[ "${DOCKER_DETACH}" -eq 1 ]]; then
   echo "[docker] Starting container in background..."
   "${DOCKER_RUN_BASE[@]}" -d "${DOCKER_TAG}" >/dev/null
   echo "[docker] Container: ${DOCKER_NAME}  Image: ${DOCKER_TAG}"
-  echo "[docker] Ports: 9090 (API), 8765 (MCP SSE)"
+  echo "[docker] Ports: 9090 (API), 8765 (MCP SSE), 5500 (UI)"
   if [[ "${FOLLOW_LOGS}" -eq 1 ]]; then
     echo "[docker] Following logs (Ctrl+C to stop following; container continues running). Mirroring to ${LOG_FILE}"
     docker logs -f "${DOCKER_NAME}" | tee -a "${LOG_FILE}"

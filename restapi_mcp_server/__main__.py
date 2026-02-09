@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from .src.api.router import api_v001
 from .src.constants import COMMON
@@ -12,6 +13,8 @@ import httpx
 import asyncio
 import threading
 from .src.utils.env import load_common_from_env
+from pathlib import Path
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
 logger = setup_logging()
 
@@ -22,6 +25,23 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
+)
+
+# CORS: allow requests from any origin (any IP/host and any port) for all routes.
+#
+# Notes:
+# - allow_origins=["*"] is sufficient to allow all hosts/ports.
+# - If allow_credentials=True, FastAPI/starlette will NOT allow "*"; it must be
+#   an explicit list. We default credentials off for a true allow-all stance.
+# - We also allow all methods/headers and expose all headers.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=86400,
 )
 app.include_router(api_v001)
 
@@ -60,6 +80,56 @@ def startAppServer():
         proxy_headers=False,
         workers=1,
     )
+
+
+def startStaticIndexServer():
+    """Serve only index.html on a dedicated port (default :5500).
+
+    This keeps the FastAPI/Uvicorn port unchanged while allowing a simple UI server
+    suitable for local use and Docker.
+    """
+
+    ui_host = os.getenv("UI_HOST", "0.0.0.0")
+    ui_port = int(os.getenv("UI_PORT", "5500"))
+
+    index_path = Path(__file__).resolve().parent / "static" / "index.html"
+    if not index_path.exists():
+        logger.warning("[UI] index.html not found at %s; UI server will not start", index_path)
+        return
+
+    index_bytes = index_path.read_bytes()
+
+    class _IndexOnlyHandler(BaseHTTPRequestHandler):
+        def do_GET(self):  # noqa: N802 (stdlib naming)
+            # Serve index for / or /index.html; 404 for everything else.
+            if self.path in ("/", "/index.html"):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(index_bytes)))
+                self.end_headers()
+                self.wfile.write(index_bytes)
+                return
+
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(b"Not Found")
+
+        def log_message(self, format, *args):  # noqa: N802 (stdlib naming)
+            # Route http.server logs through our logger (info level)
+            logger.info("[UI] %s - %s", self.address_string(), format % args)
+
+    def _run():
+        try:
+            httpd = ThreadingHTTPServer((ui_host, ui_port), _IndexOnlyHandler)
+            logger.info("[UI] Serving %s on http://%s:%d", index_path, ui_host, ui_port)
+            httpd.serve_forever()
+        except OSError as e:
+            logger.error("[UI] Failed to start UI server on %s:%d: %s", ui_host, ui_port, e)
+        except Exception:
+            logger.exception("[UI] UI server crashed")
+
+    threading.Thread(target=_run, name="ui-5500", daemon=True).start()
 
 def createMCPServerWithTools():
 
@@ -242,6 +312,7 @@ def main():
     load_common_from_env()
     global logger
     logger = setup_logging()
+    startStaticIndexServer()
     createMCPServerWithTools()
     startAppServer()
 

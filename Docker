@@ -108,8 +108,8 @@ RUN set -eux; \
       echo "Skipping project install (INSTALL_PIP!=1)"; \
     fi
 
-# Expose API and MCP SSE ports
-EXPOSE 9090 8765
+# Expose API, MCP SSE, and UI ports
+EXPOSE 9090 8765 5500
 
 # Favor unbuffered logs for Docker
 ENV PYTHONUNBUFFERED=1
