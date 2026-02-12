@@ -1,0 +1,39 @@
+{
+  "method": "POST",
+  "action": "CREATE-BRANCH-HOLIDAYS",
+  "environment": "OBRL-14.8.2-RAH",
+  "session": "{{SESSION_ID}}",
+  "url": "{{CMC-BRANCH-SERVICES}}/localholidays",
+  "request_headers": {
+    "Content-Type": "application/json",
+    "appId": "CMNCORE",
+    "userId": "{{MAKER-ID}}",
+    "entityId": "DEFAULTENTITY",
+    "authToken": "y",
+    "branchCode": "{{DEFAULT-BRANCH-CODE}}"
+  },
+  "request_body": {
+    "branchCode": "{{BRANCH-CODE}}",
+    "year": "{{HOLIDAY-YEAR}}",
+    "weeklyHolidays": "N",
+    "unexpHol": "N",
+    "CmcTmLocalHolidayDto": [
+      { "month": 1,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M01}}"},
+      { "month": 2,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M02}}" },
+      { "month": 3,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M03}}" },
+      { "month": 4,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M04}}" },
+      { "month": 5,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M05}}" },
+      { "month": 6,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M06}}" },
+      { "month": 7,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M07}}" },
+      { "month": 8,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M08}}" },
+      { "month": 9,  "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M09}}" },
+      { "month": 10, "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M10}}" },
+      { "month": 11, "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M11}}" },
+      { "month": 12, "branchCode": "{{BRANCH-CODE}}", "year": "{{HOLIDAY-YEAR}}", "holidayList": "{{HOLIDAY-M12}}" }
+    ],
+    "doerRemarks": ""
+  },
+  "post_script": {
+    "{{BRANCH-HOLIDAY-KEYID}}": "jq_expression('.messages.keyId', $RESPONSE_BODY)"
+  }
+}

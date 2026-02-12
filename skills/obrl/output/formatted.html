@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OBRL Run Summary 2026-02-12T18:28:24+05:30</title>
+  <style>
+    :root {
+      color-scheme:light dark;
+      --bg:#f7f8fb; --panel:#ffffff; --panel-alt:#f1f4ff; --text:#0f172a; --muted:#475569; --accent:#2563eb;
+      --success:#16a34a; --error:#dc2626; --warning:#d97706; --skipped:#6366f1;
+      --border:#d0d8ea; --stripe:#f5f7ff;
+    }
+    :root[data-theme="dark"] {
+      --bg:#05060a; --panel:#10131c; --panel-alt:#171b28; --text:#f3f4f6; --muted:#9ba3b4; --accent:#4da3ff;
+      --success:#22c55e; --error:#ef4444; --warning:#f59e0b; --skipped:#818cf8;
+      --border:#1f2433; --stripe:#0c101b;
+    }
+    * { box-sizing:border-box; }
+    html,body { background:var(--bg); color:var(--text); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; margin:0; }
+    body { padding:32px 0; }
+    .wrap { max-width:1200px; margin:0 auto; padding:0 20px 64px; }
+    header { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
+    .header-top { display:flex; justify-content:space-between; gap:16px; align-items:center; flex-wrap:wrap; }
+    header h1 { font-size:28px; margin:0; font-weight:600; }
+    header .meta { color:var(--muted); font-size:14px; }
+    .theme-toggle { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--muted); }
+    .switch { position:relative; display:inline-block; width:46px; height:24px; }
+    .switch input { opacity:0; width:0; height:0; }
+    .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:var(--border); transition:.3s; border-radius:24px; }
+    .slider:before { position:absolute; content:""; height:18px; width:18px; left:4px; bottom:3px; background:white; border-radius:50%; transition:.3s; }
+    input:checked + .slider { background:var(--accent); }
+    input:checked + .slider:before { transform:translateX(20px); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
+    .card { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:4px; }
+    .card small { text-transform:uppercase; letter-spacing:.08em; font-size:11px; color:var(--muted); }
+    .card strong { font-size:24px; font-weight:600; }
+    .card.success { border-color:rgba(34,197,94,.4); }
+    .card.error { border-color:rgba(239,68,68,.4); }
+    .card.warning { border-color:rgba(245,158,11,.4); }
+    .card.skipped { border-color:rgba(129,140,248,.4); }
+    .controls { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-bottom:20px; }
+    .controls label { font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+    .controls input[type=text], .controls select {
+      background:var(--panel-alt); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px 12px; min-width:200px;
+    }
+    .controls input[type=text]::placeholder { color:var(--muted); }
+    .table-wrap { background:var(--panel); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 45px rgba(0,0,0,.35); overflow:hidden; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    thead th { background:var(--panel-alt); padding:12px 14px; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:2; cursor:pointer; user-select:none; }
+    tbody td { padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05); }
+    tbody tr:nth-child(odd) { background:var(--stripe); }
+    tbody tr:hover { background:rgba(77,163,255,.08); }
+    .sort-indicator { margin-left:6px; opacity:.5; font-size:11px; }
+    th[aria-sort="ascending"] .sort-indicator::after { content:'↑'; color:var(--accent); }
+    th[aria-sort="descending"] .sort-indicator::after { content:'↓'; color:var(--accent); }
+    th[aria-sort="none"] .sort-indicator::after { content:'↕'; color:var(--muted); }
+    .badge { padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
+    .badge::before { content:''; width:8px; height:8px; border-radius:50%; display:inline-block; }
+    .badge.success { background:rgba(34,197,94,.15); color:var(--success); border:1px solid rgba(34,197,94,.4); }
+    .badge.success::before { background:var(--success); }
+    .badge.failed,.badge.error { background:rgba(239,68,68,.15); color:var(--error); border:1px solid rgba(239,68,68,.4); }
+    .badge.failed::before,.badge.error::before { background:var(--error); }
+    .badge.warning { background:rgba(245,158,11,.18); color:var(--warning); border:1px solid rgba(245,158,11,.4); }
+    .badge.warning::before { background:var(--warning); }
+    .badge.skipped { background:rgba(129,140,248,.2); color:var(--skipped); border:1px solid rgba(129,140,248,.4); }
+    .badge.skipped::before { background:var(--skipped); }
+    .empty { text-align:center; padding:32px; color:var(--muted); }
+    @media (max-width:720px){
+      header h1 { font-size:24px; }
+      .controls { flex-direction:column; align-items:flex-start; }
+      .controls input[type=text], .controls select { width:100%; }
+      table { font-size:13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="header-top">
+        <h1>OBRL Execution Report</h1>
+        <div class="theme-toggle">
+          <span>Dark mode</span>
+          <label class="switch">
+            <input id="themeSwitch" type="checkbox">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="meta">Generated: <strong>2026-02-12T18:28:24+05:30</strong></div>
+    </header>
+    <section class="cards" aria-label="Status summary">
+      <div class="card success"><small>Total Steps</small><strong id="totalSteps">0</strong></div>
+      <div class="card success"><small>Success</small><strong id="statSuccess">0</strong></div>
+      <div class="card error"><small>Failed/Error</small><strong id="statFail">0</strong></div>
+      <div class="card skipped"><small>Skipped</small><strong id="statSkip">0</strong></div>
+    </section>
+    <div class="controls" aria-label="Table controls">
+      <div>
+        <label for="q">Search</label>
+        <input id="q" type="text" placeholder="Filter rows (search all columns)…">
+      </div>
+      <div>
+        <label for="status">Status</label>
+        <select id="status"><option value="">All Statuses</option></select>
+      </div>
+      <div>
+        <label for="column">Column</label>
+        <select id="column"><option value="">All Columns</option><option value="0">S.No</option><option value="1">Description</option><option value="2">Action Code</option><option value="3">Status</option></select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="tbl" role="table" aria-label="OBRL Run Summary">
+        <thead><tr><th data-col="0" tabindex="0" role="columnheader" aria-sort="none">S.No<span class="sort-indicator"></span></th><th data-col="1" tabindex="0" role="columnheader" aria-sort="none">Description<span class="sort-indicator"></span></th><th data-col="2" tabindex="0" role="columnheader" aria-sort="none">Action Code<span class="sort-indicator"></span></th><th data-col="3" tabindex="0" role="columnheader" aria-sort="none">Status<span class="sort-indicator"></span></th></tr></thead>
+        <tbody>
+        <tr><td data-col="S.No">1</td><td data-col="Description">Check MCP registration</td><td data-col="Action Code">MCP_HEALTH</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">2</td><td data-col="Description">Reset environment variables</td><td data-col="Action Code">deleteAllByEnvironment</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">3</td><td data-col="Description">Create orchestrator session</td><td data-col="Action Code">createSession</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">4</td><td data-col="Description">Set ENV_ID constant</td><td data-col="Action Code">ENV_ID</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">5</td><td data-col="Description">Run Playwright seeding</td><td data-col="Action Code">PLAYWRIGHT_OPEN</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">6</td><td data-col="Description">List environment variables</td><td data-col="Action Code">listAllEnvironmentVariables</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">7</td><td data-col="Description">Validate DEFAULT-BRANCH-CODE</td><td data-col="Action Code">listSpecificEnvironmentVariable</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">8</td><td data-col="Description">Populate DEFAULT-BRANCH-DATE</td><td data-col="Action Code">GET_BRANCH_SYSTEM_DATES</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">9</td><td data-col="Description">Validate DEFAULT-BRANCH-DATE</td><td data-col="Action Code">listSpecificEnvironmentVariable</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">10</td><td data-col="Description">Populate MAKER-TOKEN</td><td data-col="Action Code">CREATE-MAKER-USER-TOKEN</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">11</td><td data-col="Description">Validate MAKER-TOKEN</td><td data-col="Action Code">listSpecificEnvironmentVariable</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">12</td><td data-col="Description">Populate CHECKER-TOKEN</td><td data-col="Action Code">CREATE-CHECKER-USER-TOKEN</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">13</td><td data-col="Description">Validate CHECKER-TOKEN</td><td data-col="Action Code">listSpecificEnvironmentVariable</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">14</td><td data-col="Description">Check existing BRANCH-KEYID</td><td data-col="Action Code">listSpecificEnvironmentVariable</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">15</td><td data-col="Description">Create Branch</td><td data-col="Action Code">CREATE-BRANCH</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">16</td><td data-col="Description">Authorize Branch</td><td data-col="Action Code">AUTHORIZE-BRANCH</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">17</td><td data-col="Description">Validate BRANCH-KEYID</td><td data-col="Action Code">listSpecificEnvironmentVariable</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">18</td><td data-col="Description">Get Maker UUID</td><td data-col="Action Code">GET-MAKER-UUID</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">19</td><td data-col="Description">Get SUPER_ADMIN role</td><td data-col="Action Code">GET-ROLE-UUID</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">20</td><td data-col="Description">Read Maker access</td><td data-col="Action Code">READ-MAKER-ACCESS</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">21</td><td data-col="Description">Update Maker access</td><td data-col="Action Code">UPDATE-MAKER-ACCESS</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">22</td><td data-col="Description">Authorize Maker access</td><td data-col="Action Code">AUTHORIZE-MAKER-ACCESS</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">23</td><td data-col="Description">Get Checker UUID</td><td data-col="Action Code">GET-CHECKER-UUID</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">24</td><td data-col="Description">Read Checker access</td><td data-col="Action Code">READ-CHECKER-ACCESS</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">25</td><td data-col="Description">Update Checker access</td><td data-col="Action Code">UPDATE-CHECKER-ACCESS</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">26</td><td data-col="Description">Authorize Checker access</td><td data-col="Action Code">AUTHORIZE-CHECKER-ACCESS</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">27</td><td data-col="Description">Create &amp; authorize branch holidays</td><td data-col="Action Code">CREATE-BRANCH-HOLIDAYS/AUTHORIZE-BRANCH-HOLIDAYS</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">28</td><td data-col="Description">Create branch batch jobs</td><td data-col="Action Code">CREATE-BRANCH-BATCH-JOBS-SLPR-BATCHCATEGORY</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">29</td><td data-col="Description">Populate batch categories</td><td data-col="Action Code">POPULATE-BATCH-CATEGORY</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">30</td><td data-col="Description">Submit batch category</td><td data-col="Action Code">SUBMIT-BATCH-CATEGORY</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">31</td><td data-col="Description">Authorize batch category</td><td data-col="Action Code">AUTHORIZE-BATCH-CATEGORY</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">32</td><td data-col="Description">Get branch GL date</td><td data-col="Action Code">GET_NEW_BRANCH_SYSTEM_DATES</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">33</td><td data-col="Description">Validate branch date</td><td data-col="Action Code">listSpecificEnvironmentVariable</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">34</td><td data-col="Description">Update branch date sequence</td><td data-col="Action Code">MARK_CUTOFF/MARK_EOFI/FLIPDATE/RELEASE_CUTOFF/MARK_TI</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">35</td><td data-col="Description">Refresh branch GL date</td><td data-col="Action Code">REUPDATE_NEW_BRANCH_SYSTEM_DATES</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">36</td><td data-col="Description">Auto number create/authorize</td><td data-col="Action Code">POPULATE-AUTONUMBER/AUTHORIZE-AUTONUMBER</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">37</td><td data-col="Description">Create party</td><td data-col="Action Code">CREATE-PARTY</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">38</td><td data-col="Description">Compute first installment</td><td data-col="Action Code">FIRST-INSTALLMENT-DATE</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">39</td><td data-col="Description">Create billing account</td><td data-col="Action Code">CREATE-BILLING-ACCOUNT</td><td data-col="Status">Success</td></tr>
+<tr><td data-col="S.No">40</td><td data-col="Description">Execution summary &amp; artifacts</td><td data-col="Action Code">SUMMARY-GENERATION</td><td data-col="Status">Success</td></tr>
+        </tbody>
+      </table>
+      <div class="empty" id="emptyState" hidden>No rows match the current filters.</div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    const tbl=document.getElementById('tbl');
+    const tbody=tbl.querySelector('tbody');
+    const headers=Array.from(tbl.querySelectorAll('thead th'));
+    const q=document.getElementById('q');
+    const status=document.getElementById('status');
+    const column=document.getElementById('column');
+    const emptyState=document.getElementById('emptyState');
+    const stats=JSON.parse('{"SUCCESS": 40}');
+    const totalSteps=document.getElementById('totalSteps');
+    const statSuccess=document.getElementById('statSuccess');
+    const statFail=document.getElementById('statFail');
+    const statSkip=document.getElementById('statSkip');
+    totalSteps.textContent=tbody.rows.length;
+    statSuccess.textContent=(stats.SUCCESS||0)+(stats.OK||0);
+    statFail.textContent=(stats.FAILED||0)+(stats.ERROR||0);
+    statSkip.textContent=(stats.SKIPPED||0)+(stats.WARNING||0);
+    const statuses=new Set(Array.from(tbody.querySelectorAll('tr')).map(r=>(r.cells[r.cells.length-1].textContent||'').trim()));
+    Array.from(statuses).filter(Boolean).sort().forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;status.appendChild(o);});
+    function matchesFilter(row){
+      const cells=Array.from(row.cells).map(c=>c.textContent.toLowerCase());
+      const txt=q.value.trim().toLowerCase();
+      const colIdx=column.value===''?null:parseInt(column.value,10);
+      const st=status.value.trim();
+      let hit=true;
+      if(txt){hit=colIdx===null?cells.some(v=>v.includes(txt)):(cells[colIdx]||'').includes(txt);}
+      if(hit&&st){const cur=(cells[cells.length-1]||'').toUpperCase();hit=cur===st.toUpperCase();}
+      return hit;
+    }
+    function applyFilter(){
+      let visible=0;
+      Array.from(tbody.rows).forEach(r=>{
+        const show=matchesFilter(r);
+        r.style.display=show?'':'none';
+        if(show) visible+=1;
+      });
+      emptyState.hidden=visible!==0;
+    }
+    q.addEventListener('input',applyFilter);status.addEventListener('change',applyFilter);column.addEventListener('change',applyFilter);
+    function getCellValue(row,idx){const v=row.cells[idx]?.textContent||'';return v.trim();}
+    function isNumericColumn(idx){return idx===0;}
+    function sortBy(idx){
+      const current=headers[idx].getAttribute('aria-sort');
+      const next=current==='ascending'?'descending':'ascending';
+      headers.forEach(h=>h.setAttribute('aria-sort','none'));
+      headers[idx].setAttribute('aria-sort',next);
+      const rows=Array.from(tbody.rows).filter(r=>r.style.display!=='none');
+      const dir=next==='ascending'?1:-1;
+      rows.sort((a,b)=>{
+        const va=getCellValue(a,idx);const vb=getCellValue(b,idx);
+        if(isNumericColumn(idx)){const na=parseFloat(va)||0, nb=parseFloat(vb)||0;return (na-nb)*dir;}
+        return va.localeCompare(vb,undefined,{numeric:true,sensitivity:'base'})*dir;});
+      rows.forEach(r=>tbody.appendChild(r));
+    }
+    headers.forEach((h,i)=>{h.addEventListener('click',()=>sortBy(i));h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sortBy(i);}});});
+    const statusClassMap={
+      'SUCCESS':'success','OK':'success','FAILED':'failed','ERROR':'error','WARNING':'warning','SKIPPED':'skipped'
+    };
+    Array.from(tbody.rows).forEach(r=>{
+      const c=r.cells[r.cells.length-1];
+      const val=c.textContent.trim();
+      const cls=statusClassMap[val.toUpperCase()]||'warning';
+      c.innerHTML='<span class="badge '+cls+'">'+val+'</span>';
+    });
+    const switchEl=document.getElementById('themeSwitch');
+    const root=document.documentElement;
+    const stored=localStorage.getItem('obrl-theme');
+    if(stored==='dark'){root.dataset.theme='dark';switchEl.checked=true;} else {root.dataset.theme='light';}
+    switchEl.addEventListener('change',()=>{
+      const next=switchEl.checked?'dark':'light';
+      root.dataset.theme=next;
+      localStorage.setItem('obrl-theme',next);
+    });
+  })();
+  </script>
+</body>
+</html>

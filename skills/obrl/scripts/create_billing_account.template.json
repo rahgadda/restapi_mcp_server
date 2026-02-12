@@ -1,0 +1,164 @@
+{
+  "method": "POST",
+  "action": "CREATE-BILLING-ACCOUNT",
+  "environment": "OBRL-14.8.2-RAH",
+  "session": "{{SESSION_ID}}",
+  "url": "http://ofss-mum-5364.snbomprshared2.gbucdsint02bom.oraclevcn.com:7443/obrl-ln-account-services/service/v14.8.2.0.0/accounts/accountCreate",
+  "request_headers": {
+    "Content-Type": "application/json",
+    "userId": "{{MAKER-ID}}",
+    "branchCode": "{{BRANCH-CODE}}",
+    "appId": "OBRLACCOUNT",
+    "entityId": "DEFAULTENTITY"
+  },
+  "request_body": {
+    "actionCode": "NEW",
+    "collectionType": "LendingAccountHandoffCollection",
+    "validateOnlyInd": "N",
+    "lendingAccountMasterData": {
+      "counterParty": "{{PARTY-KEYID}}",
+      "externalRefNo": "EAC11102022400",
+      "branch": "{{BRANCH-CODE}}",
+      "productCode": "PERS_EXP_CAD_ACT_365",
+      "currency": "FRF",
+      "productSegmentType": "LOAN",
+      "loanAmount": 100000,
+      "accountOnboardingDate": "{{BRANCH-DATE}}",
+      "accountOpenDate": "{{BRANCH-DATE}}",
+      "accountStatus": "ACTIVE",
+      "term": [
+        {
+          "durationUnit": "MONTHS",
+          "duration": 12
+        },
+        {
+          "durationUnit": "YEARS",
+          "duration": 0
+        }
+      ],
+      "loanPurposeCode": null,
+      "jointIndicator": "N",
+      "productType": "PER",
+      "firstInstallmentDate": "{{FIRST-INSTALLMENT-DATE}}",
+      "termUnit": "MONTHS",
+      "applicationNo": "",
+      "accountAuditData": {
+        "makerId": "{{MAKER-ID}}",
+        "makerDtStamp": "{{BRANCH-DATE}}",
+        "makerRemarks": "OK",
+        "checkerId": "{{CHECKER-ID}}",
+        "checkerDtStamp": "{{BRANCH-DATE}}",
+        "checkerRemarks": "OK"
+      }
+    },
+    "partyData": [
+      {
+        "partyId": "{{PARTY-KEYID}}",
+        "primary": "Y",
+        "percentage": 100
+      }
+    ],
+    "stageDefinitionData": [
+      {
+        "stageId": "1",
+        "stageName": "EPI",
+        "stageType": "EPI",
+        "stageTerm": [
+          {
+            "durationUnit": "YEARS",
+            "duration": 0
+          },
+          {
+            "durationUnit": "MONTHS",
+            "duration": 12
+          }
+        ],
+        "installmentFrequency": "MONTHLY",
+        "endPeriodBehavior": "NONE",
+        "basisRestFrequency": "NONE",
+        "interestCompoundingFrequency": "NONE"
+      }
+    ],
+    "lendingAccountPrincipalPref": [
+      {
+        "disbursementDate": "{{BRANCH-DATE}}",
+        "disbursementAmt": 100000,
+        "netDisbursementAmt": 100000,
+        "disbursementSegmentNum": 1,
+        "settlementMode": "LEDGER",
+        "componentCode": "PRINCIPAL",
+        "priority": 1,
+        "SettlementDetails": [
+          {
+            "settlementMode": "LEDGER",
+            "settlementCcy": "FRF",
+            "disbPercent": "100",
+            "settlementAccount": "{{AOB-BILLING-LEDGER}}",
+            "feesDebitAcct": "Y"
+          }
+        ]
+      }
+    ],
+    "lendingCommonSettlementData": [],
+    "paymentInstructionData": [],
+    "interestPreferencesData": [
+      {
+        "compCode": "INT_OUT_365",
+        "type": "USER_DEFINED",
+        "rateCode": null,
+        "rate": 7,
+        "priceCode": "TURN",
+        "rateApplication": "FIXED",
+        "effectiveDate": "{{BRANCH-DATE}}",
+        "spread": [
+          {
+            "spreadCategory": "RP_SPREAD",
+            "spread": 0
+          },
+          {
+            "spreadCategory": "BUNDLE_SPREAD",
+            "spread": 0
+          },
+          {
+            "spreadCategory": "PRODUCT_SPREAD",
+            "spread": 0
+          }
+        ],
+        "spreadType": "USER_DEFINED",
+        "refreshFrequency": "AUTOMATIC",
+        "dueDateAlignment": "P",
+        "spreadPriceCode": "1",
+        "finalRate": 7
+      }
+    ],
+    "feesPreferenceDetails": [
+      {
+        "feeCompCode": "ADHOC_FEE",
+        "feeAmountDue": 1,
+        "modifiedFeeAmount": 1,
+        "feeCollectionType": "PAYLATER",
+        "feeFrequency": null,
+        "firstDueDate": null,
+        "feeCcyCode": null
+      }
+    ],
+    "accountAddressData": [
+      {
+        "addressCode": "PERMANENT",
+        "address1": "47 W 13th Street",
+        "address2": "New York",
+        "address3": "",
+        "address4": "",
+        "zipcode": "10011",
+        "city": "New York",
+        "preferredAddress": "Y"
+      }
+    ],
+    "lendingPreferencesData": {
+      "allowedPurposeCodeList": []
+    }
+  },
+  "post_script": {
+    "{{BILLING-ACCOUNT-KEYID}}": "jq_expression('.data.accountNumber', $RESPONSE_BODY)"
+  }
+}

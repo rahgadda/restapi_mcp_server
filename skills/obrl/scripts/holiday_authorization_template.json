@@ -1,0 +1,20 @@
+{
+  "method": "PATCH",
+  "action": "AUTHORIZE-BRANCH-HOLIDAYS",
+  "environment": "OBRL-14.8.2-RAH",
+  "session": "{{SESSION_ID}}",
+  "url": "{{CMC-BRANCH-SERVICES}}/localholidays/{{BRANCH-HOLIDAY-KEYID}}/approve",
+  "request_headers": {
+    "Content-Type": "application/json",
+    "appId": "CMNCORE",
+    "userId": "{{CHECKER-ID}}",
+    "entityId": "DEFAULTENTITY",
+    "authToken": "y",
+    "branchCode": "{{DEFAULT-BRANCH-CODE}}"
+  },
+  "request_body": {
+    "id": "{{BRANCH-HOLIDAY-KEYID}}",
+    "modNos": [1],
+    "remarks": "approved"
+  }
+}
