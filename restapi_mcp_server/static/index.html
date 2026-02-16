@@ -96,29 +96,31 @@
     };
 
     // 21 provided items
-    const DEFAULTS = { "items": [
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "PLATO-DISCOVERY-SERVICE", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8004/plato-discovery-service/" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CMC-BRANCH-SERVICES", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8018/cmc-branch-services" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CMC-RESOURCE-SEGMENT-ORCHESTRATOR-SERVICE", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8016/cmc-resource-segment-orchestrator-service" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "API-GATEWAY", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8080/api-gateway" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "SMS-CORE-SERVICES", "value": "http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8026/sms-core-service" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "SLPR-BATCHCATEGORY-SERVICES", "value": "http://ofss-mum-5364.snbomprsDEFAULTed2.gbucdsint02bom.oraclevcn.com:7446/slpr-batchcategory-services" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBRL-LN-MAINTENANCE-SERVICES","value":"http://ofss-mum-5364.snbomprsDEFAULTed2.gbucdsint02bom.oraclevcn.com:7449/obrl-ln-maintenance-services"},
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBPY-PARTY-SERVICES","value":"http://ofss-mum-2362.snbomprsDEFAULTed1.gbucdsint02bom.oraclevcn.com:8028/obpy-party-services"},
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBRL-LN-ACCOUNT-SERVICES","value":"http://ofss-mum-5364.snbomprsDEFAULTed2.gbucdsint02bom.oraclevcn.com:7443/obrl-ln-account-services"},
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "DEFAULT-BRANCH-CODE", "value": "006" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "MAKER-ID", "value": "HMACHAMAK" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CHECKER-ID", "value": "HMACHACHK" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-MAKER-ID", "value": "PAVDASMAK" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-CHECKER-ID", "value": "PAVDASCHK" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-STORAGE-DIR", "value": "/Users/DEFAULTish/.codex/skills/obrl/output" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "BRANCH-CODE", "value": "H02" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "BRANCH-NAME", "value": "AUTOMATION BRANCH" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-FIRST-NAME", "value": "JOHN" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-LAST-NAME", "value": "DOE" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-MIDDLE-NAME", "value": "J" },
-      { "environment": "OBRL-14.8.2-DEFAULT", "variable": "AOB-BILLING-LEDGER", "value": "20000200100080000000" }
-    ]};
+    const DEFAULTS = {
+      "items": [
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "PLATO-DISCOVERY-SERVICE", "value": "http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8004/plato-discovery-service/" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CMC-BRANCH-SERVICES", "value": "http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8018/cmc-branch-services" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CMC-RESOURCE-SEGMENT-ORCHESTRATOR-SERVICE", "value": "http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8016/cmc-resource-segment-orchestrator-service" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "API-GATEWAY", "value": "http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8080/api-gateway" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "SMS-CORE-SERVICES", "value": "http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8026/sms-core-service" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "SLPR-BATCHCATEGORY-SERVICES", "value": "http://ofss-mum-5364.snbomprshared2.gbucdsint02bom.oraclevcn.com:7446/slpr-batchcategory-services" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBRL-LN-MAINTENANCE-SERVICES","value":"http://ofss-mum-5364.snbomprshared2.gbucdsint02bom.oraclevcn.com:7449/obrl-ln-maintenance-services"},
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBPY-PARTY-SERVICES","value":"http://ofss-mum-2362.snbomprshared1.gbucdsint02bom.oraclevcn.com:8028/obpy-party-services"},
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "OBRL-LN-ACCOUNT-SERVICES","value":"http://ofss-mum-5364.snbomprshared2.gbucdsint02bom.oraclevcn.com:7443/obrl-ln-account-services"},
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "DEFAULT-BRANCH-CODE", "value": "006" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "MAKER-ID", "value": "RAHGADDAMAK" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CHECKER-ID", "value": "RAHGADDACHK" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-MAKER-ID", "value": "PAVDASMAK" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-CHECKER-ID", "value": "PAVDASCHK" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "TEMP-STORAGE-DIR", "value": "/Users/rahgadda/.codex/skills/obrl/output" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "BRANCH-CODE", "value": "A64" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "BRANCH-NAME", "value": "AUTOMATION BRANCH" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-FIRST-NAME", "value": "RAHUL" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-LAST-NAME", "value": "GADDAM" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "CUSTOMER-MIDDLE-NAME", "value": "KIRAN" },
+        { "environment": "OBRL-14.8.2-DEFAULT", "variable": "AOB-BILLING-LEDGER", "value": "20000200100080000000" }
+      ]
+    };
 
     const LS_KEY = 'envmgr.min.v3';
 
