@@ -124,7 +124,7 @@
 
     function loadConfig() {
       const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
-      els.baseUrl.value = saved.baseUrl || 'http://100.76.169.105/:9090';
+      els.baseUrl.value = saved.baseUrl || 'http://100.76.169.105:9090';
       els.env.value = saved.env || 'OBRL-14.8.2-DEFAULT';
       // Do NOT auto-load DEFAULTS into the table on page load.
       // The table should start empty until the user clicks Connect & Fetch
