@@ -25,3 +25,4 @@ restapi_mcp_server.egg-info
 test.rest
 logs/
 restapi_mcp_server.egg-info/
+*.csv
