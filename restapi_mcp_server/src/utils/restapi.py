@@ -42,15 +42,29 @@ def _preview_body(body: Any | None, limit: int = 512) -> str:
         text = "<unrepresentable body>"
     return text
 
-def _build_send_kwargs(body: Any | None) -> Dict[str, Any]:
+def _build_send_kwargs(
+    body: Any | None,
+    form_data: Any | None = None,
+    files: Any | None = None,
+) -> Dict[str, Any]:
     """
     Build keyword arguments for httpx.Client.request() based on the provided body.
 
-    - dict/list -> send as JSON (json=...)
-    - str/bytes/bytearray -> send as raw content (content=...)
+    Priority order:
+    - files present -> multipart/form-data (files=..., optional data=...)
+    - form_data present -> application/x-www-form-urlencoded or multipart depending on values
+    - dict/list body -> send as JSON (json=...)
+    - str/bytes/bytearray body -> send as raw content (content=...)
     - None -> no body is sent
     - any other type -> converted to string and sent as raw content
     """
+    if files is not None:
+        kwargs: Dict[str, Any] = {"files": files}
+        if form_data is not None:
+            kwargs["data"] = form_data
+        return kwargs
+    if form_data is not None:
+        return {"data": form_data}
     if body is None:
         return {}
     if isinstance(body, (dict, list)):
@@ -85,12 +99,14 @@ def _request(
     url: str,
     headers: Optional[Dict[str, str]] = None,
     body: Any | None = None,
+    form_data: Any | None = None,
+    files: Any | None = None,
     timeout: Union[float, httpx.Timeout] = DEFAULT_HTTP_TIMEOUT,
 ) -> Dict[str, Any]:
     """
     Internal helper to perform an HTTP request and return a normalized response dict.
     """
-    send_kwargs = _build_send_kwargs(body)
+    send_kwargs = _build_send_kwargs(body=body, form_data=form_data, files=files)
     method_upper = method.upper()
     start_ts = time.monotonic()
 
@@ -102,6 +118,14 @@ def _request(
         logger.debug("Request headers: %s", _redact_headers(headers))
     if body is not None:
         logger.debug("Request body: %s", _preview_body(body))
+    if form_data is not None:
+        logger.debug("Request form_data: %s", _preview_body(form_data))
+    if files is not None:
+        try:
+            file_count = len(files)
+        except Exception:
+            file_count = -1
+        logger.debug("Request files count: %s", file_count)
 
     try:
         # Use a short-lived client for a single request.
@@ -137,6 +161,8 @@ def http_get(
     url: str,
     headers: Optional[Dict[str, str]] = None,
     body: Any | None = None,
+    form_data: Any | None = None,
+    files: Any | None = None,
     timeout: Union[float, httpx.Timeout] = DEFAULT_HTTP_TIMEOUT,
 ) -> Dict[str, Any]:
     """
@@ -144,34 +170,40 @@ def http_get(
 
     Although GET typically does not include a body, this utility accepts a body if provided.
     """
-    return _request("GET", url, headers=headers, body=body, timeout=timeout)
+    return _request("GET", url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
 
 def http_post(
     url: str,
     headers: Optional[Dict[str, str]] = None,
     body: Any | None = None,
+    form_data: Any | None = None,
+    files: Any | None = None,
     timeout: Union[float, httpx.Timeout] = DEFAULT_HTTP_TIMEOUT,
 ) -> Dict[str, Any]:
     """
     Perform an HTTP POST request.
     """
-    return _request("POST", url, headers=headers, body=body, timeout=timeout)
+    return _request("POST", url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
 
 def http_put(
     url: str,
     headers: Optional[Dict[str, str]] = None,
     body: Any | None = None,
+    form_data: Any | None = None,
+    files: Any | None = None,
     timeout: Union[float, httpx.Timeout] = DEFAULT_HTTP_TIMEOUT,
 ) -> Dict[str, Any]:
     """
     Perform an HTTP PUT request.
     """
-    return _request("PUT", url, headers=headers, body=body, timeout=timeout)
+    return _request("PUT", url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
 
 def http_delete(
     url: str,
     headers: Optional[Dict[str, str]] = None,
     body: Any | None = None,
+    form_data: Any | None = None,
+    files: Any | None = None,
     timeout: Union[float, httpx.Timeout] = DEFAULT_HTTP_TIMEOUT,
 ) -> Dict[str, Any]:
     """
@@ -179,24 +211,28 @@ def http_delete(
 
     Although DELETE typically does not include a body, this utility accepts a body if provided.
     """
-    return _request("DELETE", url, headers=headers, body=body, timeout=timeout)
+    return _request("DELETE", url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
 
 def http_patch(
     url: str,
     headers: Optional[Dict[str, str]] = None,
     body: Any | None = None,
+    form_data: Any | None = None,
+    files: Any | None = None,
     timeout: Union[float, httpx.Timeout] = DEFAULT_HTTP_TIMEOUT,
 ) -> Dict[str, Any]:
     """
     Perform an HTTP PATCH request.
     """
-    return _request("PATCH", url, headers=headers, body=body, timeout=timeout)
+    return _request("PATCH", url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
 
 def http_request(
     method: str,
     url: str,
     headers: Optional[Dict[str, str]] = None,
     body: Any | None = None,
+    form_data: Any | None = None,
+    files: Any | None = None,
     timeout: Union[float, httpx.Timeout] = DEFAULT_HTTP_TIMEOUT,
 ) -> Dict[str, Any]:
     """
@@ -208,17 +244,17 @@ def http_request(
     method_upper = method.upper()
     match method_upper:
         case "GET":
-            return http_get(url, headers=headers, body=body, timeout=timeout)
+            return http_get(url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
         case "POST":
-            return http_post(url, headers=headers, body=body, timeout=timeout)
+            return http_post(url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
         case "PUT":
-            return http_put(url, headers=headers, body=body, timeout=timeout)
+            return http_put(url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
         case "PATCH":
-            return http_patch(url, headers=headers, body=body, timeout=timeout)
+            return http_patch(url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
         case "DELETE":
-            return http_delete(url, headers=headers, body=body, timeout=timeout)
+            return http_delete(url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
         case "HEAD" | "OPTIONS":
-            return _request(method_upper, url, headers=headers, body=body, timeout=timeout)
+            return _request(method_upper, url, headers=headers, body=body, form_data=form_data, files=files, timeout=timeout)
         case _:
             logger.error("Unsupported HTTP method: %s", method)
             raise ValueError(f"Unsupported HTTP method: {method}")

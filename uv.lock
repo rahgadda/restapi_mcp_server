@@ -1102,6 +1102,7 @@ dependencies = [
     { name = "mcp" },
     { name = "pandas" },
     { name = "pydantic" },
+    { name = "python-multipart" },
     { name = "pyyaml" },
     { name = "uvicorn" },
 ]
@@ -1120,6 +1121,7 @@ requires-dist = [
     { name = "mcp", specifier = ">=1.25.0" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pydantic", specifier = ">=2.12.5" },
+    { name = "python-multipart", specifier = ">=0.0.20" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "uvicorn", specifier = ">=0.40.0" },
 ]

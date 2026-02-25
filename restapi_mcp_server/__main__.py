@@ -252,6 +252,8 @@ def createMCPServerWithTools():
         session: str,
         request_headers: Dict[str, Any] | None = None,
         request_body: Any | None = None,
+        request_form_data: Dict[str, Any] | None = None,
+        request_files: List[Dict[str, Any]] | None = None,
         pre_script: Any | None = None,
         post_script: Any | None = None,
         debug: bool | None = None,
@@ -268,6 +270,8 @@ def createMCPServerWithTools():
         - session: Session identifier
         - request_headers: Optional headers map (values may use interpolation syntax)
         - request_body: Optional JSON body (values may use interpolation syntax)
+        - request_form_data: Optional form fields map for x-www-form-urlencoded or multipart requests
+        - request_files: Optional list of file parts. Each item: {field_name, filename, content_type?, content}
         - pre_script: Reserved (not used currently)
         - post_script: Optional dict of {"{{VARIABLE_NAME}}": "expression"}; evaluated on 2xx/3xx status
         - debug: Optional flag
@@ -285,6 +289,10 @@ def createMCPServerWithTools():
             payload["request_headers"] = request_headers
         if request_body is not None:
             payload["request_body"] = request_body
+        if request_form_data is not None:
+            payload["request_form_data"] = request_form_data
+        if request_files is not None:
+            payload["request_files"] = request_files
         if pre_script is not None:
             payload["pre_script"] = pre_script
         if post_script is not None:

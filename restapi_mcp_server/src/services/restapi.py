@@ -180,6 +180,53 @@ def resolve_interpolations(obj, env_rows):
     logger.debug("After jq: %s", _preview(jq_pass))
     return jq_pass
 
+
+def _to_httpx_form_data(form_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Convert dict-based form data into an httpx-compatible mapping.
+
+    - list values are expanded into repeated form keys
+    - dict/list scalar values are JSON-encoded
+    - other scalar values are sent as-is (or cast to str)
+    """
+    items: Dict[str, Any] = {}
+    for key, value in form_data.items():
+        values = value if isinstance(value, list) else [value]
+        encoded_values: list[Any] = []
+        for v in values:
+            if isinstance(v, (dict, list)):
+                encoded_values.append(json.dumps(v, ensure_ascii=False))
+            elif isinstance(v, (str, bytes, bytearray)):
+                encoded_values.append(v)
+            elif v is None:
+                encoded_values.append("")
+            else:
+                encoded_values.append(str(v))
+
+        # Preserve repeated keys using list values; otherwise store scalar.
+        items[str(key)] = encoded_values if len(encoded_values) > 1 else encoded_values[0]
+
+    return items
+
+
+def _to_httpx_files(files_in: list[Any]) -> list[tuple[str, tuple[Any, ...]]]:
+    """
+    Convert request file models into the tuple structure expected by httpx.
+    """
+    files: list[tuple[str, tuple[Any, ...]]] = []
+    for f in files_in:
+        field_name = str(getattr(f, "field_name", "file"))
+        filename = str(getattr(f, "filename", "upload.bin"))
+        content = getattr(f, "content", b"")
+        if not isinstance(content, (bytes, bytearray)):
+            content = str(content).encode("utf-8")
+        content_type = getattr(f, "content_type", None)
+        if content_type:
+            files.append((field_name, (filename, bytes(content), str(content_type))))
+        else:
+            files.append((field_name, (filename, bytes(content))))
+    return files
+
 def restapiCall(request: RestAPIIn):
 
     logger.info("Invoking RestAPI")
@@ -190,6 +237,8 @@ def restapiCall(request: RestAPIIn):
     logger.debug(f"action: {request.action}")
     logger.debug(f"request_headers: {request.request_headers}")
     logger.debug(f"request_body: {request.request_body}")
+    logger.debug(f"request_form_data: {request.request_form_data}")
+    logger.debug(f"request_files count: {len(request.request_files or [])}")
     logger.debug(f"post_script: {request.post_script}")
 
     # Loading environment variables
@@ -220,7 +269,7 @@ def restapiCall(request: RestAPIIn):
         logger.error("Failed to interpolate session/environment: %s", e)
         raise
 
-    # Interpolate URL, headers, and body using environment variables (safe; no Python eval)
+    # Interpolate URL, headers, body, and form data using environment variables (safe; no Python eval)
     try:
         # Resolve interpolations iteratively: variables -> RESTAPI constants -> base64 -> jq
         url_resolved = resolve_interpolations(request.url, environment_details)
@@ -265,6 +314,24 @@ def restapiCall(request: RestAPIIn):
         request.request_body = parsed
         logger.debug(f"resolved request_body: {request.request_body}")
 
+        form_data_resolved = resolve_interpolations(request.request_form_data or {}, environment_details)
+        if not isinstance(form_data_resolved, dict):
+            logger.info("Resolved form data not a dict; defaulting to empty form data")
+            form_data_resolved = {}
+        request.request_form_data = cast(Dict[str, Any], form_data_resolved)
+        logger.debug(f"resolved request_form_data: {request.request_form_data}")
+
+        # Interpolate file metadata (field name, file name, content type). File bytes are not interpolated.
+        for f in (request.request_files or []):
+            try:
+                f.field_name = str(resolve_interpolations(f.field_name, environment_details))
+                f.filename = str(resolve_interpolations(f.filename, environment_details))
+                if f.content_type is not None:
+                    f.content_type = str(resolve_interpolations(f.content_type, environment_details))
+            except Exception as exc:
+                logger.error("Failed to interpolate file metadata: %s", exc)
+                raise
+
     except Exception as e:
         logger.error("Failed to interpolate request components: %s", e)
         raise
@@ -272,13 +339,50 @@ def restapiCall(request: RestAPIIn):
     # Create transaction record and perform the HTTP request via utility switch
     # Coerce headers to str->str mapping for httpx
     send_headers: Dict[str, str] = {str(k): str(v) for k, v in (request.request_headers or {}).items()}
-    request_snapshot = {"url": request.url, "headers": send_headers, "body": request.request_body}
+    send_form_data = _to_httpx_form_data(request.request_form_data or {}) if (request.request_form_data or {}) else None
+    send_files = _to_httpx_files(cast(list[Any], request.request_files or [])) if (request.request_files or []) else None
+
+    # Let httpx generate the multipart boundary/content-type when sending files.
+    if send_files:
+        for hk in list(send_headers.keys()):
+            if hk.lower() == "content-type":
+                send_headers.pop(hk, None)
+
+    request_snapshot = {
+        "url": request.url,
+        "headers": send_headers,
+        "body": request.request_body,
+        "form_data": request.request_form_data,
+        "files": [
+            {
+                "field_name": f.field_name,
+                "filename": f.filename,
+                "content_type": f.content_type,
+                "size": len(f.content) if isinstance(f.content, (bytes, bytearray)) else None,
+            }
+            for f in (request.request_files or [])
+        ],
+    }
 
     # Populate RESTAPI request constants and snapshot previous response
     RESTAPI.PREVIOUS_RESPONSE_BODY = getattr(RESTAPI, "RESPONSE_BODY", None)
     RESTAPI.PREVIOUS_HTTP_STATUS_CODE = getattr(RESTAPI, "RESPONSE_HTTP_STATUS_CODE", None)
     RESTAPI.REQUEST_HEADERS = send_headers
-    RESTAPI.REQUEST_BODY = request.request_body
+    if (request.request_form_data or {}) or (request.request_files or []):
+        RESTAPI.REQUEST_BODY = {
+            "body": request.request_body,
+            "form_data": request.request_form_data,
+            "files": [
+                {
+                    "field_name": f.field_name,
+                    "filename": f.filename,
+                    "content_type": f.content_type,
+                }
+                for f in (request.request_files or [])
+            ],
+        }
+    else:
+        RESTAPI.REQUEST_BODY = request.request_body
 
     txn_id: Optional[str] = None
     try:
@@ -295,6 +399,8 @@ def restapiCall(request: RestAPIIn):
             url=request.url,
             headers=send_headers,
             body=request.request_body,
+            form_data=send_form_data,
+            files=send_files,
         )
 
         status_code = int(response.get("status", 0))
