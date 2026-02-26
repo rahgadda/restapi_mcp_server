@@ -26,3 +26,5 @@ test.rest
 logs/
 restapi_mcp_server.egg-info/
 *.csv
+storage/environment.csv
+storage/transaction.csv

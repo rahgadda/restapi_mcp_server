@@ -13,6 +13,27 @@ import json, re
 
 logger = setup_logging()
 
+
+def _lookup_native_variable_value(env_rows: Any, var_name: str) -> tuple[bool, Any]:
+    """
+    Lookup a variable in environment rows and return its native (non-stringified) value.
+
+    Supported row shapes:
+    - {"variable": "NAME", "value": ...}
+    - {"NAME": ...}
+    """
+    for row in (env_rows or []):
+        if not isinstance(row, dict):
+            continue
+
+        if row.get("variable") == var_name:
+            return True, row.get("value")
+
+        if var_name in row:
+            return True, row.get(var_name)
+
+    return False, None
+
 def _preview(value: Any, limit: int = 2000) -> str:
     try:
         text = json.dumps(value, default=str)
@@ -35,6 +56,20 @@ def _interpolate_obj(obj, env_rows):
     - Otherwise return obj as-is
     """
     if isinstance(obj, str):
+        # Preserve native type when the entire string is a single placeholder.
+        # Example: "{{FILE_ID}}" -> ["id1", "id2", ...] (not stringified list)
+        mvar = re.fullmatch(COMMON.BRACED_VARIABLE_REGEX, obj.strip())
+        if mvar and (mvar.lastindex or 0) >= 1:
+            var_name = mvar.group(1)
+            found, native_val = _lookup_native_variable_value(env_rows, var_name)
+            if found:
+                logger.debug(
+                    "Variable interpolation (native): %s -> %s",
+                    _preview(obj),
+                    _preview(native_val),
+                )
+                return native_val
+
         out = interpolate_vars(expression=obj, data=env_rows)
         if out != obj:
             logger.debug("Variable interpolation: %s -> %s", _preview(obj), _preview(out))

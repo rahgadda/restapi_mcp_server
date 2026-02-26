@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from typing import Any, Dict, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 import base64
 
 
@@ -62,6 +63,37 @@ class RestAPIIn(BaseModel):
         None,
         description="Template object evaluated after the HTTP call; can read response fields and update env/envstore",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_legacy_payload_keys(cls, data: Any) -> Any:
+        """
+        Backward compatibility for payloads that use older key names.
+
+        Supported aliases:
+        - headers -> request_headers
+        - body -> request_body
+        - form_data -> request_form_data
+        - files -> request_files
+
+        Canonical `request_*` keys always take precedence when both are present.
+        """
+        if not isinstance(data, Mapping):
+            return data
+
+        payload = dict(data)
+        aliases = {
+            "headers": "request_headers",
+            "body": "request_body",
+            "form_data": "request_form_data",
+            "files": "request_files",
+        }
+
+        for legacy_key, canonical_key in aliases.items():
+            if canonical_key not in payload and legacy_key in payload:
+                payload[canonical_key] = payload[legacy_key]
+
+        return payload
 
 class RestAPIOut(BaseModel):
     response_status: int = Field(..., description="HTTP status code from the downstream request")
