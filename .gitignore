@@ -26,5 +26,7 @@ test.rest
 logs/
 restapi_mcp_server.egg-info/
 *.csv
-storage/environment.csv
-storage/transaction.csv
+
+# Allow checking in storage folder/files (while still ignoring other CSVs)
+!storage/
+!storage/*.csv
